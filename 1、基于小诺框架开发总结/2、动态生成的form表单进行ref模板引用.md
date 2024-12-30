@@ -109,3 +109,48 @@ const handleSubmit = () => {
 	console.log(`正确数${successCount}，总表单数为${formRefs.value.length}`);  
 };
 ```
+
+# 3 动态表单项生成
+
+```vue
+	<a-modal v-model:open="open" :title="props.title" :confirm-loading="confirmLoading" @ok="handleOk">
+		<a-form
+			ref="formRef"
+			:model="formConfig"
+			name="basic"
+		>
+			<a-space
+				v-for="(item, index) in formConfig.formItems"
+				:key="index"
+			>
+				<a-form-item
+					v-if="item.type === 'input'"
+					:label="item.label"
+					:name="['formItems', index, 'value']"
+					:rules="{
+          				required: true,
+          				message: '请输入',
+        			}"
+				>
+					<a-input v-model:value="item.value" />
+				</a-form-item>
+			</a-space>
+		</a-form>
+	</a-modal>
+```
+如上，根据formConfig.formItems，动态生成对应的表单项，如何对每个表单项进行表单效验？
+
+使用name数组和rules对象。
+- name数组给每个表单项动态绑定name属性，此时name的值就是一个数组，就是对formConfig里需要被遍历的属性`formItems`里对应的索引`index`的对应值`value` 进行规则检验，
+```
+name:[
+    "formItems",
+    1,
+    "value"
+]
+```
+代表要给formItems列表里索引为1的 元素.value 进行规则检验。
+
+>[!attention] 注意！
+>被迭代的formConfig必须是响应式变量。
+
